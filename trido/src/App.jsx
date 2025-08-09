@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Helmet } from 'react-helmet';
 import './App.css';
 import axios from 'axios';
 
@@ -233,7 +234,17 @@ function App() {
     );
   }
 
-  return (
+  
+    return (
+  <>
+    <Helmet>
+      <title>Trido.in - Premier Bike Rental Service in Uttarakhand</title>
+      <meta
+        name="description"
+        content="Book scooters and bikes easily in Roorkee, Haridwar, Dehradun, and Rishikesh."
+      />
+    </Helmet>
+
     <div className="App">
       <header className="header">
         <div className="container">
@@ -380,13 +391,15 @@ function App() {
             </div>
             <div className="footer-section">
               <h3>Contact Us</h3>
-              <p>Email: info@trido.in<br/>Phone: +91 12345 67890<br/>Address: Roorkee, Uttarakhand, India</p>
+              <p>Email: tridorentals@gmail.com<br/>Phone: +91 7597464179<br/>Address: Roorkee, Uttarakhand, India</p>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  );
+  </>
+);
+
 }
 
 export default App;
