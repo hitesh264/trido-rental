@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Helmet } from 'react-helmet';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
 
@@ -7,8 +6,10 @@ function App() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [showBookingConfirmation, setShowBookingConfirmation] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    destination: '',
+    pickupLocation: '',
+    tripDestination: '',
     arrivalDate: '',
     returnDate: '',
     arrivalTime: '',
@@ -21,12 +22,25 @@ function App() {
     phone: ''
   });
 
-  const destinations = ['Roorkee', 'Haridwar', 'Dehradun', 'Rishikesh'];
+  // Prevent body scroll when modals are open
+  useEffect(() => {
+    if (showRegister || showBookingConfirmation) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showRegister, showBookingConfirmation]);
+
+  const pickupLocations = ['Roorkee', 'Haridwar', 'Dehradun', 'Rishikesh'];
   const vehicles = [
-    { name: 'Activa 125', emoji: '🛵', type: 'Scooter' },
-    { name: 'RE Classic 350', emoji: '🏍️', type: 'Royal Enfield' },
-    { name: 'Access 125', emoji: '🛵', type: 'Scooter' },
-    { name: 'RE Himalayan 450', emoji: '🏍️', type: 'Adventure Bike' },
+    { name: 'Activa', emoji: '🛵', type: 'Scooter' },
+    { name: 'Bullet', emoji: '🏍️', type: 'Royal Enfield' },
+    { name: 'Access', emoji: '🛵', type: 'Scooter' },
+    { name: 'RE Himalayan', emoji: '🏍️', type: 'Adventure Bike' },
     { name: 'Pulsar 150', emoji: '🏍️', type: 'Sport Bike' },
     { name: 'Yamaha FZ', emoji: '🏍️', type: 'Sport Bike' }
   ];
@@ -81,10 +95,11 @@ function App() {
   };
 
   const handleBookRide = async () => {
-    const { destination, arrivalDate, returnDate, arrivalTime, returnTime, vehicles } = formData;
+    const { pickupLocation, tripDestination, arrivalDate, returnDate, arrivalTime, returnTime, vehicles } = formData;
     
     // Check if all required fields are filled
-    const isFormValid = destination && 
+    const isFormValid = pickupLocation && 
+                       tripDestination &&
                        arrivalDate && 
                        returnDate && 
                        arrivalTime && 
@@ -102,13 +117,15 @@ function App() {
     }
 
     if (isRegistered) {
+      setIsLoading(true);
       try {
-        await axios.post('https://sheetdb.ioc', {
+        await axios.post('https://sheetdb.io/api/v1/767du28gefx9c', {
           data: [{
             name: registerData.name,
             email: registerData.email,
             phone: registerData.phone,
-            destination,
+            pickupLocation,
+            tripDestination,
             arrivalDate: formatDateForSheet(arrivalDate),
             returnDate: formatDateForSheet(returnDate),
             arrivalTime: formatTimeForSheet(arrivalTime),
@@ -117,8 +134,10 @@ function App() {
             totalVehicles: getTotalVehicles()
           }]
         });
+        setIsLoading(false);
         setShowBookingConfirmation(true);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
         alert('There was an error saving your booking.');
       }
@@ -129,20 +148,22 @@ function App() {
 
   const handleRegister = async () => {
     const { name, email, phone } = registerData;
-    const { destination, arrivalDate, returnDate, arrivalTime, returnTime, vehicles } = formData;
+    const { pickupLocation, tripDestination, arrivalDate, returnDate, arrivalTime, returnTime, vehicles } = formData;
 
     if (!name || !email || !phone) {
       alert('Please fill in all registration fields');
       return;
     }
 
+    setIsLoading(true);
     try {
       await axios.post('https://sheetdb.io/api/v1/767du28gefx9c', {
         data: [{
           name,
           email,
           phone,
-          destination,
+          pickupLocation,
+          tripDestination,
           arrivalDate: formatDateForSheet(arrivalDate),
           returnDate: formatDateForSheet(returnDate),
           arrivalTime: formatTimeForSheet(arrivalTime),
@@ -151,10 +172,12 @@ function App() {
           totalVehicles: getTotalVehicles()
         }]
       });
+      setIsLoading(false);
       setIsRegistered(true);
       setShowRegister(false);
       setShowBookingConfirmation(true);
     } catch (error) {
+      setIsLoading(false);
       console.error(error);
       alert('There was an error saving your registration.');
     }
@@ -176,7 +199,8 @@ function App() {
             onClick={() => {
               setShowBookingConfirmation(false);
               setFormData({
-                destination: '',
+                pickupLocation: '',
+                tripDestination: '',
                 arrivalDate: '',
                 returnDate: '',
                 arrivalTime: '',
@@ -219,12 +243,24 @@ function App() {
               onChange={(e) => handleRegisterChange('phone', e.target.value)}
               className="form-input"
             />
-            <button className="btn-primary" onClick={handleRegister}>
-              Register & Book Ride
+            <button 
+              className="btn-primary" 
+              onClick={handleRegister}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="loading-spinner"></div>
+                  Registering...
+                </>
+              ) : (
+                'Register & Book Ride'
+              )}
             </button>
             <button 
               className="btn-secondary" 
               onClick={() => setShowRegister(false)}
+              disabled={isLoading}
             >
               Back
             </button>
@@ -234,17 +270,7 @@ function App() {
     );
   }
 
-  
-    return (
-  <>
-    <Helmet>
-      <title>Trido.in - Premier Bike Rental Service in Uttarakhand</title>
-      <meta
-        name="description"
-        content="Book scooters and bikes easily in Roorkee, Haridwar, Dehradun, and Rishikesh."
-      />
-    </Helmet>
-
+  return (
     <div className="App">
       <header className="header">
         <div className="container">
@@ -252,12 +278,6 @@ function App() {
             <h1>trido.in</h1>
           </div>
           <nav className="nav">
-            <button 
-              className="nav-link" 
-              onClick={() => setShowRegister(true)}
-            >
-              Register
-            </button>
             <button 
               className="nav-link" 
               onClick={scrollToAbout}
@@ -271,27 +291,38 @@ function App() {
       <main className="main">
         <div className="container">
           <div className="booking-section">
-            <h2 className="section-title">Book Your Ride</h2>
+            <h2 className="section-title">Book Your Ride Now 🗺️📍</h2>
             
             <div className="form-group">
-              <label className="form-label">Select Destination</label>
+              <label className="form-label">Pick-up Location</label>
               <div className="destination-grid">
-                {destinations.map((dest) => (
+                {pickupLocations.map((location) => (
                   <button
-                    key={dest}
-                    className={`destination-card ${formData.destination === dest ? 'selected' : ''}`}
-                    onClick={() => handleFormChange('destination', dest)}
+                    key={location}
+                    className={`destination-card ${formData.pickupLocation === location ? 'selected' : ''}`}
+                    onClick={() => handleFormChange('pickupLocation', location)}
                   >
-                    {dest}
+                    {location}
                   </button>
                 ))}
               </div>
             </div>
 
+            <div className="form-group">
+              <label className="form-label">Trip Destination (e.g. Dehradun)</label>
+              <input
+                type="text"
+                className="form-input"
+                placeholder="Enter your trip destination"
+                value={formData.tripDestination}
+                onChange={(e) => handleFormChange('tripDestination', e.target.value)}
+              />
+            </div>
+
             <div className="date-time-section">
               <div className="date-section">
                 <div className="form-group">
-                  <label className="form-label">Arrival Date</label>
+                  <label className="form-label">Pick-up Date</label>
                   <input
                     type="date"
                     className="form-input"
@@ -314,7 +345,7 @@ function App() {
 
               <div className="time-section">
                 <div className="form-group">
-                  <label className="form-label">Arrival Time</label>
+                  <label className="form-label">Pick-up Time</label>
                   <input
                     type="time"
                     className="form-input"
@@ -375,8 +406,19 @@ function App() {
               )}
             </div>
 
-            <button className="btn-book" onClick={handleBookRide}>
-              Book the Ride ({getTotalVehicles()} vehicle{getTotalVehicles() !== 1 ? 's' : ''})
+            <button 
+              className="btn-book" 
+              onClick={handleBookRide}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <div className="loading-spinner"></div>
+                  Processing...
+                </>
+              ) : (
+                `Book the Ride (${getTotalVehicles()} vehicle${getTotalVehicles() !== 1 ? 's' : ''})`
+              )}
             </button>
           </div>
         </div>
@@ -387,19 +429,18 @@ function App() {
           <div className="footer-content">
             <div className="footer-section">
               <h3>About Us</h3>
-              <p>Welcome to Trido.in - your premier bike rental service across Uttarakhand. We provide high-quality bikes and scooters for your travel adventures.</p>
+              <p>Welcome to Trido.in - your premier bike rental service across Uttarakhand. We provide high-quality bikes and scooters for your travel adventures at affordable prices. <br/>
+              Made with 💗 by students at IIT Roorkee.</p>
             </div>
             <div className="footer-section">
               <h3>Contact Us</h3>
-              <p>Email: tridorentals@gmail.com<br/>Phone: +91 7597464179<br/>Address: Roorkee, Uttarakhand, India</p>
+              <p>Email: tridorentals@gmail.com<br/>Phone: +91 75974 64179<br/>Address: Roorkee, Uttarakhand, India</p>
             </div>
           </div>
         </div>
       </footer>
     </div>
-  </>
-);
-
+  );
 }
 
 export default App;

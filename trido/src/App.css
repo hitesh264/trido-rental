@@ -1,4 +1,5 @@
 /* Reset and Base Styles */
+/* Reset and Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -73,7 +74,7 @@ body {
 /* Main Content */
 .main {
   min-height: 80vh;
-  padding: 4rem 0;
+  padding: 3rem 0 4rem 0;
   background: linear-gradient(135deg, #fff 0%, #fffbf0 100%);
   width: 100%;
 }
@@ -361,11 +362,22 @@ body {
   transition: all 0.3s ease;
   margin: 0.5rem;
   width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 215, 0, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .btn-secondary {
@@ -387,15 +399,35 @@ body {
   color: #FFD700;
 }
 
+/* Loading Spinner */
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 /* Register Page */
 .register-page {
   min-height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #fff 0%, #fffbf0 100%);
   padding: 2rem;
-  width: 100%;
+  z-index: 2000;
 }
 
 .register-content {
@@ -424,12 +456,16 @@ body {
 /* Confirmation Page */
 .confirmation-page {
   min-height: 100vh;
+  width: 100vw;
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   background: linear-gradient(135deg, #fff 0%, #fffbf0 100%);
   padding: 2rem;
-  width: 100%;
+  z-index: 2000;
 }
 
 .confirmation-content {
