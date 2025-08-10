@@ -309,7 +309,7 @@ function App() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Trip Destination (e.g. Dehradun)</label>
+              <label className="form-label">Trip Destination (e.g. Dehradun, Mussoorie etc.)</label>
               <input
                 type="text"
                 className="form-input"
