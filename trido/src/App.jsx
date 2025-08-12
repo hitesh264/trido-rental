@@ -38,11 +38,12 @@ function App() {
   const pickupLocations = ['Roorkee', 'Haridwar', 'Dehradun', 'Rishikesh'];
   const vehicles = [
     { name: 'Activa 125', emoji: '🛵', type: 'Scooter' },
-    { name: 'RE Classic 350', emoji: '🏍️', type: 'Royal Enfield' },
     { name: 'Access 125', emoji: '🛵', type: 'Scooter' },
+    { name: 'Ntorq', emoji: '🛵', type: 'Scooter' },
+    { name: 'RE Classic 350', emoji: '🏍️', type: 'Royal Enfield' },
     { name: 'RE Himalayan', emoji: '🏍️', type: 'Adventure Bike' },
-    { name: 'Pulsar 150', emoji: '🏍️', type: 'Sport Bike' },
-    { name: 'Yamaha FZ', emoji: '🏍️', type: 'Sport Bike' }
+    { name: 'RE Meteor', emoji: '🏍️', type: 'Royal Enfield' },
+    { name: 'RE Hunter', emoji: '🏍️', type: 'Royal Enfield' }
   ];
 
   const handleFormChange = (field, value) => {
